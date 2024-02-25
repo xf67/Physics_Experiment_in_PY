@@ -21,6 +21,9 @@ except:
 
 x=[]
 y=[]
+k_theo=0
+b_theo=0
+theo_ok=False
 
 class Excelrw:
     def __init__(self,fpath,new_excel=0):
@@ -173,10 +176,17 @@ def modify():
             except:
                 print("输入非法")
 def draw():
+    global theo_ok,k_theo,b_theo
     X=np.arange(min(x),max(x),(max(x)-min(x))/200)
     Y=k*X+b
-    plt.plot(X, Y, color='red')
+    plt.plot(X, Y, color='red',label='Experimental')
     plt.scatter(x, y, color='black',marker='s')
+    if theo_ok==True:
+        XX=np.arange(min(x),max(x),(max(x)-min(x))/200)
+        YY=k_theo*XX+b_theo
+        plt.plot(XX, YY, color='blue',label='Theoratical')
+        plt.legend()
+
     plt.show()
 def calculate(x1,y1):
     global k
@@ -255,6 +265,25 @@ def evil(xt,yt):
         modify()
         evil(x,y)
         return
+    
+def draw_theoratical():
+    global theo_ok,k_theo,b_theo
+    ttmp=input("Draw the theoratical line? Y/N: ")
+    if ttmp=='n' or ttmp=='N':
+        theo_ok=False
+        return
+    elif ttmp=='y' or ttmp=='Y':
+        theo_ok=True
+        k_theo=input("Input theoratical k: ")
+        b_theo=input("Input theoratical b: ")
+        k_theo=float(k_theo)
+        b_theo=float(b_theo)
+        ttmp=input("Draw again? Y/N: ")
+        if ttmp=='n' or ttmp=='N':
+            return
+        elif ttmp=='y' or ttmp=='Y':
+            draw()
+
         
 def main():
     global raw
@@ -299,11 +328,12 @@ def main():
     clearall()
     printall(x,y)
     calculate(x,y)
-    raw=(f"斜率={k}+-{delta_k}\n截距={b}+-{delta_b}\n残差平方和={serror}\nPearson's r={pearsonr}\nR平方(COD)={rr}")
+    raw=(f"斜率={k}±{delta_k}\n截距={b}±{delta_b}\n残差平方和={serror}\nPearson's r={pearsonr}\nR平方(COD)={rr}")
     rawx=x[:]
     rawy=y[:]
     print(raw)
     draw()
+    draw_theoratical()
     evil(x,y)
     clearall()
     if set(y).difference(set(rawy)):
